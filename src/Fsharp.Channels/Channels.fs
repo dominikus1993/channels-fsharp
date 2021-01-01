@@ -1,8 +1,9 @@
 namespace Fsharp
 
-module Channels =
+module Channel =
     open System.Threading.Channels
 
-    let unbounded (opt : Option<_>) =
+    let unbounded<'a>(opt : Option<_>) =
         let options = defaultArg opt null
-        Channel.CreateUnbounded(options)
+        let ch = Channel.CreateUnbounded<'a>(options)
+        struct (ch.Reader, ch.Writer)
