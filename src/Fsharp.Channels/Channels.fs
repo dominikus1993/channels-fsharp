@@ -1,4 +1,4 @@
-namespace Fsharp
+namespace FSharp.Channels
 
 module Channel =
     open System.Threading.Channels
@@ -7,3 +7,7 @@ module Channel =
         let options = defaultArg opt null
         let ch = Channel.CreateUnbounded<'a>(options)
         struct (ch.Reader, ch.Writer)
+    
+    let write(msg) (writer: ChannelWriter<_>)  =
+        writer.TryWrite(msg) |> ignore
+        writer
