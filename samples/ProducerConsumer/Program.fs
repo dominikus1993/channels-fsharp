@@ -1,8 +1,10 @@
 // Learn more about F# at http://docs.microsoft.com/dotnet/fsharp
 
 open System
+open System.Threading.Tasks
 open FSharp.Channels
 open System.Threading.Channels
+open FSharp.Control.Tasks
 
 // Define a function to construct a message to print
 let from whom =
@@ -11,11 +13,19 @@ let from whom =
 type Msg = { Value: int }
 
 let producer(writer: ChannelWriter<Msg>) =
-    for i = 0 to 20 do
-        writer |> Channel.write({ Value = i }) |> ignore
+    task {
+        for i = 0 to 20 do
+            let! _ = writer |> Channel.writeAsync({ Value = i })
+            printf "dads"
+        writer.Complete()
+        return ()
+    }
+
         
 [<EntryPoint>]
 let main argv =
-    let message = from "F#" // Call the function
-    printfn "Hello world %s" message
+    let struct (reader, writer) = Channel.unbounded(None)
+    let producerT = producer(writer)
+    
+    Task.WaitAll(producerT)
     0 // return an integer exit code
